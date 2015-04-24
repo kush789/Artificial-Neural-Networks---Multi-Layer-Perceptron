@@ -1,8 +1,24 @@
+import numpy
+
+#################### Activation functions ######################
+
+def sigmoid(x):
+	return 1.0/(1.0 + numpy.exp(-1))
+
+def sigmoid_derivative(x):
+	return sigmoid(x) * (1.0 - sigmoid(x))
+
+######################## Node class ############################
+
 class node:
 
 	def __init__(self, value, weight):
 		self.value = value
 		self.weight = weight
+
+#################### Input layer class ##########################
+
+""" List of nodes, no bias list (input has no bias input) """
 
 class input_layer:
 
@@ -11,6 +27,10 @@ class input_layer:
 
 		for i in range(input_nodes):
 			self.nodes.append(node(values[i], weights[i]))
+
+############### Hidden and Output layer class ###################
+
+""" List of nodes, and a bias list """
 
 class layer:
 
@@ -21,6 +41,10 @@ class layer:
 		for i in range(hidden_nodes):
 			self.nodes.append(node(0, weights[i]))
 			self.bias = bias[i]
+
+############## Artificial Neural Network class ##################
+
+""" As of now, only one hidden layer """
 
 class neural_network:
 
