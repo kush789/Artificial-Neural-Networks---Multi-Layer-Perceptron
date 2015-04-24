@@ -1,6 +1,24 @@
+#####################################################################
+#																	#
+# 	 This is free software; you can redistribute it and/or modify   #
+#    it under the terms of the GNU General Public License as 		#
+#    published by the Free Software Foundation; either version 2 	#
+#    of the License, or (at your option) any later version. 		#
+#																	#
+#    This code is distributed in the hope that it will be useful,	#
+#    but WITHOUT ANY WARRANTY; without even the implied warranty 	#
+#    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 		#
+#    See the GNU General Public License for more details. 			#
+#																	#
+#####################################################################
+#																	#
+#	 Copyright (C) 2015 Kushagra Singh								#
+#																	#
+#####################################################################
+
 import numpy
 
-#################### Activation functions ######################
+####################### Activation functions #########################
 
 def sigmoid(x):
 	return 1.0/(1.0 + numpy.exp(-x))
@@ -8,7 +26,7 @@ def sigmoid(x):
 def sigmoid_derivative(x):
 	return sigmoid(x) * (1.0 - sigmoid(x))
 
-######################## Node class ############################
+########################### Node class ###############################
 
 """ 1. Input value, list of weight of edge to each node in hidden layers 
 	2. Weight[0][0] means weight from first node in current layer to 
@@ -20,7 +38,7 @@ class node:
 		self.value = value
 		self.weight = weight
 
-#################### Input layer class ##########################
+####################### Input layer class #############################
 
 """ List of nodes, no bias list (input has no bias input) """
 
@@ -35,7 +53,7 @@ class input_layer:
 			self.nodes.append(node(values[i], weights[i]))
 			self.values.append(0)
 
-############### Hidden and Output layer class ###################
+################## Hidden and Output layer class ######################
 
 """ List of nodes, and a bias list.
 	Bias[i] means bias of input to node i of current layer """
@@ -53,7 +71,7 @@ class layer:
 			self.bias.append(bias[i])
 			self.values.append(0)
 
-############## Artificial Neural Network class ##################
+################# Artificial Neural Network class #####################
 
 """ As of now, only one hidden layer """
 
