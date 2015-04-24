@@ -3,7 +3,7 @@ import numpy
 #################### Activation functions ######################
 
 def sigmoid(x):
-	return 1.0/(1.0 + numpy.exp(-1))
+	return 1.0/(1.0 + numpy.exp(-x))
 
 def sigmoid_derivative(x):
 	return sigmoid(x) * (1.0 - sigmoid(x))
@@ -28,10 +28,12 @@ class input_layer:
 
 	def __init__(self, input_nodes, values, weights):
 		self.nodes = []
+		self.values = []
 		self.total = input_nodes
 
 		for i in range(input_nodes):
 			self.nodes.append(node(values[i], weights[i]))
+			self.values.append(0)
 
 ############### Hidden and Output layer class ###################
 
@@ -40,14 +42,16 @@ class input_layer:
 
 class layer:
 
-	def __init__(self, hidden_nodes, values, weights, bias):
+	def __init__(self, num_nodes, weights, bias):
 		self.nodes = []
 		self.bias = []
-		self.total = input_nodes
+		self.values = []
+		self.total = num_nodes
 
-		for i in range(hidden_nodes):
+		for i in range(num_nodes):
 			self.nodes.append(node(0, weights[i]))
 			self.bias.append(bias[i])
+			self.values.append(0)
 
 ############## Artificial Neural Network class ##################
 
@@ -56,19 +60,27 @@ class layer:
 class neural_network:
 
 	def __init__(self):
-		pass
+		self.learning_rate = 0.5
 
-	def set_input_layer(self, input_nodes, values, weights):
+	""" Learning constants """
+
+	def set_learning_rate(self, rate):
+		self.learning_rate = rate
+
+	""" Set up of layers """
+
+	def set_input_layer(self, input_nodes, weights):
+		values = [0 for i in range(input_nodes)]
 		self.input_layer = input_layer(input_nodes, values, weights)
 
 	def set_hidden_layer(self, hidden_nodes, weights, bias):
-		values = [0 for i in range(hidden_nodes)]
-		self.hidden_layer = layer(hidden_nodes, values, weights, bias)
+		self.hidden_layer = layer(hidden_nodes, weights, bias)
 
 	def set_output_layer(self, output_nodes, bias):
-		self.output_layer = layer(output_nodes, values, weights, bias)
+		weights = [0 for i in range(output_nodes)]
+		self.output_layer = layer(output_nodes, weights, bias)
 
-	""" Feed Forward """
+	""" Forward Propogation """
 
 	def set_hidden_layer_values(self):
 
@@ -79,10 +91,10 @@ class neural_network:
 
 			for j in range(self.input_layer.total):
 				temp_sum += (self.input_layer.nodes[j].value * 
-							self.input_layer.nodes[j].weights[i])
+							self.input_layer.nodes[j].weight[i])
 
-			self.hidden_layer.nodes[i].value = sigmoid(temp_sum 
-											 + self.hidden_layer.bias[i])
+			temp_sum += self.hidden_layer.bias[i]
+			self.hidden_layer.nodes[i].value = sigmoid(temp_sum)
 
 	def set_output_layer_values(self):
 
@@ -93,12 +105,12 @@ class neural_network:
 
 			for j in range(self.hidden_layer.total):
 				temp_sum += (self.hidden_layer.nodes[j].value * 
-							 self.input_layer.nodes[j].weights[i])
+							 self.hidden_layer.nodes[j].weight[i])
 
-			self.output_layer.nodes[i].value = sigmoid(temp_sum 
-											 + self.output_layer.bias[i])
+			temp_sum += self.output_layer.bias[i]
+			self.output_layer.nodes[i].value = sigmoid(temp_sum)
 
-	def feed_forward(self, input_data):
+	def forward_propogate(self, input_data):
 
 		""" Sets hidden layer values and output 
 			layer values based upon input values """
@@ -106,15 +118,5 @@ class neural_network:
 		for i in range(self.input_layer.total):
 			self.input_layer.nodes[i].value = input_data[i]
 
-		set_hidden_layer_values()
-		set_output_layer_values()
-
-
-
-
-
-
-
-
-
-
+		self.set_hidden_layer_values()
+		self.set_output_layer_values()
