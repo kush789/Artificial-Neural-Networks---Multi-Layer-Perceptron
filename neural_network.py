@@ -19,6 +19,7 @@
 ########################### Dependencies ############################
 
 import numpy
+import copy
 
 ####################### Activation functions ########################
 
@@ -37,10 +38,11 @@ def sigmoid_derivative(x):
 
 class node:
 
-	def __init__(self, input_value, weight, output_value = 0):
+	def __init__(self, input_value, weight = [], output_value = 0):
 		self.input_value = input_value
 		self.output_value = output_value
-		self.weight = weight
+		self.prev_weight = copy.copy(weight)
+		self.weight = copy.copy(weight)
 
 ####################### Input layer class ###########################
 
@@ -68,13 +70,12 @@ class layer:
 
 	def __init__(self, num_nodes, weights, bias):
 		self.nodes = []
-		self.bias = []
 		self.delta = []
+		self.bias = copy.copy(bias)
 		self.total = num_nodes
 
 		for i in range(num_nodes):
 			self.nodes.append(node(0, weights[i]))
-			self.bias.append(bias[i])
 			self.delta.append(0)
 
 ################# Artificial Neural Network class ###################
@@ -83,13 +84,17 @@ class layer:
 
 class neural_network:
 
-	def __init__(self):
-		self.learning_rate = 0.5
+	def __init__(self, learning_rate, mobility_factor):
+		self.learning_rate = learning_rate
+		self.mobility_factor = mobility_factor
 
-	""" Learning constants """
+	""" setting constants """
 
-	def set_learning_rate(self, rate):
-		self.learning_rate = rate
+	def set_learning_rate(self, learning_rate):
+		self.learning_rate = learning_rate
+
+	def set_mobility_factor(self, mobility_factor):
+		self.mobility_factor = mobility_factor
 
 	""" Set up of layers """
 
@@ -156,7 +161,8 @@ class neural_network:
 		for i in range(self.output_layer.total):
 			self.output_layer.delta[i] = sigmoid_derivative(
 				 self.output_layer.nodes[i].input_value) * (
-				 output_data[i] - self.output_layer.nodes[i].output_value)
+				 output_data[i] - 
+				 self.output_layer.nodes[i].output_value)
 		
 		""" Hidden layer nodes """
 
@@ -170,3 +176,74 @@ class neural_network:
 
 			self.hidden_layer.delta[i] *= sigmoid_derivative(
 					 self.hidden_layer.nodes[i].input_value)
+
+	def update_weights(self):
+
+		""" Updates weights for each edge """
+
+		""" Hidden layer nodes """
+
+		for i in range(self.hidden_layer.total):
+			current_weights = [0 for j in range(self.output_layer.total)]
+
+			for j in range(self.output_layer.total):
+				current_weights[j] = self.hidden_layer.nodes[i].weight[j]
+
+				self.hidden_layer.nodes[i].weight[j] += ( 
+					 self.mobility_factor * 
+					 self.hidden_layer.nodes[i].prev_weight[j])
+				self.hidden_layer.nodes[i].weight[j] += (
+					 self.learning_rate * 
+					 self.output_layer.delta[j] * 
+					 self.hidden_layer.nodes[i].output_value)
+
+				self.hidden_layer.nodes[i].prev_weight[j] = current_weights[j]
+
+		""" Input layer nodes """
+
+		for i in range(self.input_layer.total):
+			current_weights = [0 for j in range(self.hidden_layer.total)]
+
+			for j in range(self.hidden_layer.total):
+				current_weights[j] = self.input_layer.nodes[i].weight[j]
+
+				self.input_layer.nodes[i].weight[j] += ( 
+					 self.mobility_factor * 
+					 self.input_layer.nodes[i].prev_weight[j])
+				self.input_layer.nodes[i].weight[j] += (
+					 self.learning_rate * 
+					 self.hidden_layer.delta[j] * 
+					 self.input_layer.nodes[i].output_value)
+
+				self.input_layer.nodes[i].prev_weight[j] = current_weights[j]
+
+	def back_propogation(self, output_data):
+		self.delta_calculation(output_data)
+		self.update_weights()
+
+	def learn(self, input_data, output_data):
+		self.feed_forward(input_data)
+		self.back_propogation(output_data)
+
+	""" Print values of various attributes """
+
+	def print_weights(self):
+
+		print "prev input layer"
+		for i in range(self.input_layer.total):
+			print self.input_layer.nodes[i].prev_weight,
+
+		print "\n\ncurrent input layer"
+		for i in range(self.input_layer.total):
+			print self.input_layer.nodes[i].weight,
+
+
+		print "\n\nprev hidden layer"
+		for i in range(self.hidden_layer.total):
+			print self.hidden_layer.nodes[i].prev_weight,
+
+		print "\n\ncurrent hidden layer"
+		for i in range(self.hidden_layer.total):
+			print self.hidden_layer.nodes[i].weight,
+
+		print "\n\n"
