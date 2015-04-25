@@ -32,8 +32,8 @@ def sigmoid_derivative(x):
 
 """ 1. input_value -> Input data 
 	2. output_value -> sigmoid(input_value)
-	3. Weight[0][0] means weight from first node in current layer to 
-	first node in next layer """
+	3. weight[0] means weight from current node 
+	   to first node in next layer """
 
 class node:
 
@@ -149,5 +149,24 @@ class neural_network:
 
 	def delta_calculation(self, output_data):
 
-		""" Calculates the delta input_value for each 
-			node in the network """
+		""" Calculates delta values for each node """
+
+		""" Output layer nodes """
+
+		for i in range(self.output_layer.total):
+			self.output_layer.delta[i] = sigmoid_derivative(
+				 self.output_layer.nodes[i].input_value) * (
+				 output_data[i] - self.output_layer.nodes[i].output_value)
+		
+		""" Hidden layer nodes """
+
+		for i in range(self.hidden_layer.total):
+			self.hidden_layer.delta[i] = 0
+
+			for j in range(len(self.hidden_layer.nodes[i].weight)):
+				self.hidden_layer.delta[i] += (
+					 self.hidden_layer.nodes[i].weight[j] *
+					 self.output_layer.delta[j])
+
+			self.hidden_layer.delta[i] *= sigmoid_derivative(
+					 self.hidden_layer.nodes[i].input_value)
