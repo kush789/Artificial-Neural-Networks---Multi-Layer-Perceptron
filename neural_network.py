@@ -247,3 +247,21 @@ class neural_network:
 			print self.hidden_layer.nodes[i].weight,
 
 		print "\n\n"
+
+	def print_node_values(self):
+
+		print "input layer"
+		for i in range(self.input_layer.total):
+			print "node", i+1, "output :", self.input_layer.nodes[i].output_value
+
+		print "\n\nhidden layer"
+		for i in range(self.hidden_layer.total):
+			print "node", i+1, "input :", self.hidden_layer.nodes[i].input_value,
+			print "node", i+1, "output :", self.hidden_layer.nodes[i].output_value
+
+		print "\n\noutput layer"
+		for i in range(self.output_layer.total):
+			print "node", i+1, "input :", self.output_layer.nodes[i].input_value,
+			print "node", i+1, "output :", self.output_layer.nodes[i].output_value
+
+		print "\n\n"
