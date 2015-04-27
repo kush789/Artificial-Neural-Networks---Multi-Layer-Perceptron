@@ -56,7 +56,7 @@ class input_layer:
 		self.total = input_nodes
 
 		for i in range(input_nodes):
-			self.nodes.append(node(0, weights[i], values[i]))
+			self.nodes.append(node(0, 0, weights[i], values[i]))
 
 	def set_output_values(self, output_values):
 		for i in range(self.total):
@@ -76,7 +76,7 @@ class layer:
 		self.total = num_nodes
 
 		for i in range(num_nodes):
-			self.nodes.append(node(0, bias[i], weights[i]), 0)
+			self.nodes.append(node(0, bias[i], weights[i], 0))
 			self.delta.append(0)
 
 ################# Artificial Neural Network class ###################
@@ -219,10 +219,16 @@ class neural_network:
 				self.input_layer.nodes[i].prev_weight[j] = current_weights[j]
 
 	def back_propogation(self, output_data):
+
+		""" Complete back propogation learning """
+
 		self.delta_calculation(output_data)
 		self.update_weights()
 
 	def learn(self, input_data, output_data):
+
+		""" Complete supervised learning """
+
 		self.feed_forward(input_data)
 		self.back_propogation(output_data)
 
@@ -264,5 +270,17 @@ class neural_network:
 		for i in range(self.output_layer.total):
 			print "node", i+1, "input :", self.output_layer.nodes[i].input_value,
 			print "node", i+1, "output :", self.output_layer.nodes[i].output_value
+
+		print "\n\n"
+
+	def print_delta_values(self):
+
+		print "hidden layer"
+		for i in range(self.hidden_layer.total):
+			print "node", i+1, "delta :", self.hidden_layer.delta[i]
+
+		print "\n\noutput layer"
+		for i in range(self.output_layer.total):
+			print "node", i+1, "delta :", self.output_layer.delta[i]
 
 		print "\n\n"
