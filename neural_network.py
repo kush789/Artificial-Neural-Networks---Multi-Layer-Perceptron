@@ -39,6 +39,7 @@ def sigmoid_derivative(x):
 class node:
 
 	def __init__(self, input_value, bias, weight, output_value):
+		self.delta = 0
 		self.input_value = input_value
 		self.output_value = output_value
 		self.bias = bias
@@ -71,13 +72,11 @@ class layer:
 
 	def __init__(self, num_nodes, weights, bias):
 		self.nodes = []
-		self.delta = []
 		self.bias = copy.copy(bias)
 		self.total = num_nodes
 
 		for i in range(num_nodes):
 			self.nodes.append(node(0, bias[i], weights[i], 0))
-			self.delta.append(0)
 
 ################# Artificial Neural Network class ###################
 
@@ -160,7 +159,7 @@ class neural_network:
 		""" Output layer nodes """
 
 		for i in range(self.output_layer.total):
-			self.output_layer.delta[i] = sigmoid_derivative(
+			self.output_layer.nodes[i].delta = sigmoid_derivative(
 				 self.output_layer.nodes[i].input_value) * (
 				 output_data[i] - 
 				 self.output_layer.nodes[i].output_value)
@@ -168,14 +167,14 @@ class neural_network:
 		""" Hidden layer nodes """
 
 		for i in range(self.hidden_layer.total):
-			self.hidden_layer.delta[i] = 0
+			self.hidden_layer.nodes[i].delta = 0
 
 			for j in range(len(self.hidden_layer.nodes[i].weight)):
-				self.hidden_layer.delta[i] += (
+				self.hidden_layer.nodes[i].delta += (
 					 self.hidden_layer.nodes[i].weight[j] *
-					 self.output_layer.delta[j])
+					 self.output_layer.nodes[j].delta)
 
-			self.hidden_layer.delta[i] *= sigmoid_derivative(
+			self.hidden_layer.nodes[i].delta *= sigmoid_derivative(
 					 self.hidden_layer.nodes[i].input_value)
 
 	def update_weights(self):
@@ -195,7 +194,7 @@ class neural_network:
 					 self.hidden_layer.nodes[i].prev_weight[j])
 				self.hidden_layer.nodes[i].weight[j] += (
 					 self.learning_rate * 
-					 self.output_layer.delta[j] * 
+					 self.output_layer.nodes[j].delta * 
 					 self.hidden_layer.nodes[i].output_value)
 
 				self.hidden_layer.nodes[i].prev_weight[j] = current_weights[j]
@@ -213,7 +212,7 @@ class neural_network:
 					 self.input_layer.nodes[i].prev_weight[j])
 				self.input_layer.nodes[i].weight[j] += (
 					 self.learning_rate * 
-					 self.hidden_layer.delta[j] * 
+					 self.hidden_layer.nodes[j].delta * 
 					 self.input_layer.nodes[i].output_value)
 
 				self.input_layer.nodes[i].prev_weight[j] = current_weights[j]
@@ -277,10 +276,10 @@ class neural_network:
 
 		print "hidden layer"
 		for i in range(self.hidden_layer.total):
-			print "node", i+1, "delta :", self.hidden_layer.delta[i]
+			print "node", i+1, "delta :", self.hidden_layer.nodes[i].delta
 
 		print "\n\noutput layer"
 		for i in range(self.output_layer.total):
-			print "node", i+1, "delta :", self.output_layer.delta[i]
+			print "node", i+1, "delta :", self.output_layer.nodes[i].delta
 
 		print "\n\n"
