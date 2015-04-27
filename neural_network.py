@@ -34,7 +34,10 @@ def sigmoid_derivative(x):
 """ 1. input_value -> Input data 
 	2. output_value -> sigmoid(input_value)
 	3. weight[0] means weight from current node 
-	   to first node in next layer """
+	   to first node in next layer
+	4. bias -> Bias weight input to the node
+	5. delta -> Calculated delta value for the node
+	   while back propagation """
 
 class node:
 
@@ -46,37 +49,38 @@ class node:
 		self.prev_weight = copy.copy(weight)
 		self.weight = copy.copy(weight)
 
-####################### Input layer class ###########################
+########################### Layer class #############################
 
-""" List of nodes, no bias list (input has no bias input) """
+""" layer_type : input -> input layer
+		   		 hidden -> hidden layer
+		   		 output -> output layer """
 
-class input_layer:
+class layer:
 
-	def __init__(self, input_nodes, values, weights):
+	def __init__(self, layer_type, num_nodes, weights, bias = []):
 		self.nodes = []
-		self.total = input_nodes
+		self.layer_type = layer_type
+		self.total = num_nodes
 
-		for i in range(input_nodes):
-			self.nodes.append(node(0, 0, weights[i], values[i]))
+		if layer_type == "input":				# Input layer, no bias
+			for i in range(self.total):
+				self.nodes.append(node(0, 0, weights[i], 0))
+
+		elif layer_type == "output":			# Output later, no weights
+			for i in range(self.total):
+				self.nodes.append(node(0, bias[i], 0, 0))
+
+		else:
+			for i in range(self.total):
+				self.nodes.append(node(0, bias[i], weights[i], 0))
+	
+	def set_input_values(self, input_value):
+		for i in range(self.total):
+			self.nodes[i].input_value = input_value[i]
 
 	def set_output_values(self, output_values):
 		for i in range(self.total):
 			self.nodes[i].output_value = output_values[i]
-
-################## Hidden and Output layer class ####################
-
-""" List of nodes, and a bias list.
-	Bias[i] means bias of input to node i of current layer """
-
-class layer:
-
-	def __init__(self, num_nodes, weights, bias):
-		self.nodes = []
-		self.bias = copy.copy(bias)
-		self.total = num_nodes
-
-		for i in range(num_nodes):
-			self.nodes.append(node(0, bias[i], weights[i], 0))
 
 ################# Artificial Neural Network class ###################
 
@@ -99,15 +103,13 @@ class neural_network:
 	""" Set up of layers """
 
 	def set_input_layer(self, input_nodes, weights):
-		values = [0 for i in range(input_nodes)]
-		self.input_layer = input_layer(input_nodes, values, weights)
+		self.input_layer = layer("input", input_nodes, weights)
 
 	def set_hidden_layer(self, hidden_nodes, weights, bias):
-		self.hidden_layer = layer(hidden_nodes, weights, bias)
+		self.hidden_layer = layer("hidden", hidden_nodes, weights, bias)
 
 	def set_output_layer(self, output_nodes, bias):
-		weights = [0 for i in range(output_nodes)]
-		self.output_layer = layer(output_nodes, weights, bias)
+		self.output_layer = layer("output", output_nodes, [], bias)
 
 	""" Forward Propogation """
 
