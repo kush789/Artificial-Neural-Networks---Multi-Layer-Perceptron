@@ -38,9 +38,10 @@ def sigmoid_derivative(x):
 
 class node:
 
-	def __init__(self, input_value, weight = [], output_value = 0):
+	def __init__(self, input_value, bias, weight, output_value):
 		self.input_value = input_value
 		self.output_value = output_value
+		self.bias = bias
 		self.prev_weight = copy.copy(weight)
 		self.weight = copy.copy(weight)
 
@@ -75,7 +76,7 @@ class layer:
 		self.total = num_nodes
 
 		for i in range(num_nodes):
-			self.nodes.append(node(0, weights[i]))
+			self.nodes.append(node(0, bias[i], weights[i]), 0)
 			self.delta.append(0)
 
 ################# Artificial Neural Network class ###################
@@ -122,7 +123,7 @@ class neural_network:
 				temp_sum += (self.input_layer.nodes[j].output_value * 
 							self.input_layer.nodes[j].weight[i])
 
-			temp_sum += self.hidden_layer.bias[i]
+			temp_sum += self.hidden_layer.nodes[i].bias
 			self.hidden_layer.nodes[i].input_value = temp_sum
 			self.hidden_layer.nodes[i].output_value = sigmoid(temp_sum)
 
@@ -137,7 +138,7 @@ class neural_network:
 				temp_sum += (self.hidden_layer.nodes[j].output_value * 
 							 self.hidden_layer.nodes[j].weight[i])
 
-			temp_sum += self.output_layer.bias[i]
+			temp_sum += self.output_layer.nodes[i].bias
 			self.output_layer.nodes[i].input_value = temp_sum
 			self.output_layer.nodes[i].output_value = sigmoid(temp_sum)
 
