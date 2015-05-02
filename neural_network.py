@@ -29,6 +29,13 @@ def sigmoid(x):
 def sigmoid_derivative(x):
 	return sigmoid(x) * (1.0 - sigmoid(x))
 
+def tansigmoid(x):
+	return 2.0/(1 + numpy.exp(-2*x)) - 1.0
+
+def tansigmoid_derivative(x):
+	return 1.0 - x**2
+
+
 ########################### Node class ##############################
 
 """ 1. input_value -> Input data 
@@ -62,11 +69,11 @@ class layer:
 		self.layer_type = layer_type
 		self.total = num_nodes
 
-		if layer_type == "input":				# Input layer, no bias
+		if layer_type == "input":			# Input layer, no bias
 			for i in range(self.total):
 				self.nodes.append(node(0, 0, weights[i], 0))
 
-		elif layer_type == "output":			# Output later, no weights
+		elif layer_type == "output":		# Output later, no weights
 			for i in range(self.total):
 				self.nodes.append(node(0, bias[i], 0, 0))
 
